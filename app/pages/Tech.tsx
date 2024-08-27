@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { IconBrandCpp, IconBrandJavascript, IconBrandMongodb, IconBrandNextjs, IconBrandNodejs, IconBrandPython, IconBrandAws, IconBrandSpringBoot } from '@tabler/icons-react';
+import { IconBrandCpp, IconBrandJavascript, IconBrandMongodb, IconBrandNextjs, IconBrandNodejs, IconBrandPython, IconBrandAws } from '@tabler/icons-react';
 
 const techStack = [
     { icon: IconBrandCpp, name: "C++", expertise: "Expert", color: "bg-blue-100" },
@@ -12,7 +12,7 @@ const techStack = [
     { icon: IconBrandNodejs, name: "Node.js", expertise: "Advanced", color: "bg-green-100" },
     { icon: IconBrandMongodb, name: "MongoDB", expertise: "Advanced", color: "bg-green-200" },
     { icon: IconBrandAws, name: "AWS", expertise: "Intermediate", color: "bg-orange-100" },
-    { icon: IconBrandSpringBoot, name: "Spring Boot", expertise: "Intermediate", color: "bg-lime-100" },
+    // { icon: IconBrandSpringBoot, name: "Spring Boot", expertise: "Intermediate", color: "bg-lime-100" },
     { icon: null, name: "Machine Learning", expertise: "Advanced", color: "bg-purple-100" },
     { icon: null, name: "LLM", expertise: "Intermediate", color: "bg-indigo-100" },
 ];
