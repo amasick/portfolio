@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { IconFileCv, IconMail, IconBrandGithub, IconBrandLinkedin, IconBrandInstagram, IconBrandX, IconUser } from '@tabler/icons-react';
 
-const ContactLink = ({ href, icon: Icon, label }) => (
+const ContactLink = ({ href , icon: Icon, label }) => (
   <motion.a
     href={href}
     target="_blank"

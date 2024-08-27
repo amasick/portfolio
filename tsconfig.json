@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/pages/Contact.jsx", "app/pages/Experience.jsx", "app/pages/HomePage.jsx", "app/pages/Linkedin.jsx", "app/pages/Projects.jsx", "app/pages/skill-graph.jsx", "app/pages/Tech.jsx", "app/pages/codingplatforms.jsx"],
   "exclude": ["node_modules"]
 }
