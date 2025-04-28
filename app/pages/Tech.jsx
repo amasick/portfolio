@@ -217,7 +217,10 @@ const Tech = () => {
         <div className="min-h-screen bg-black text-white py-16 relative overflow-hidden" id="tech">
             {/* Dynamic background */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black opacity-50" />
-            <div className="absolute inset-0 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center opacity-10" />
+           <div 
+               className="absolute inset-0 bg-cover bg-center opacity-10" 
+                  style={{backgroundImage: "url('/api/placeholder/1920/1080')"}}
+                        />
 
             {/* Content */}
             <div className="relative z-10 container mx-auto px-4">
