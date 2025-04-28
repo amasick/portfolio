@@ -217,10 +217,7 @@ const Tech = () => {
         <div className="min-h-screen bg-black text-white py-16 relative overflow-hidden" id="tech">
             {/* Dynamic background */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black opacity-50" />
-           <div 
-               className="absolute inset-0 bg-cover bg-center opacity-10" 
-                  style={{backgroundImage: "url('/api/placeholder/1920/1080')"}}
-                        />
+            <div className="absolute inset-0 bg-cover bg-center opacity-10" style={{backgroundImage: "url('/api/placeholder/1920/1080')"}} />
 
             {/* Content */}
             <div className="relative z-10 container mx-auto px-4">
@@ -293,9 +290,10 @@ const Tech = () => {
                             className="bg-gray-900 p-6 rounded-lg shadow-lg"
                         >
                             <div className="flex items-center mb-6">
-                                {TechData[selectedCategory].icon && (
-                                    <TechData[selectedCategory].icon size={30} className="text-purple-500 mr-3" />
-                                )}
+                                {TechData[selectedCategory].icon && (() => {
+                                    const IconComponent = TechData[selectedCategory].icon;
+                                    return <IconComponent size={30} className="text-purple-500 mr-3" />;
+                                })()}
                                 <h3 className="text-2xl font-bold text-purple-400">
                                     {TechData[selectedCategory].category}
                                 </h3>
