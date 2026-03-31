@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { IconFileCv, IconMail, IconBrandGithub, IconBrandLinkedin, IconBrandInstagram, IconBrandX, IconUser } from '@tabler/icons-react';
+import { IconMail, IconBrandLinkedin, IconBrandInstagram, IconBrandX, IconBrandMedium } from '@tabler/icons-react';
 
 const ContactLink = ({ href , icon: Icon, label }) => (
   <motion.a
@@ -32,13 +32,11 @@ const Contact = () => {
   };
 
   const contactLinks = [
-    { href: "https://github.com/amasick", icon: IconBrandGithub, label: "GitHub" },
+    { href: "https://medium.com/@ama_sick", icon: IconBrandMedium, label: "Medium" },
+    { href: "https://x.com/ama_sick", icon: IconBrandX, label: "Twitter" },
+    { href: "https://www.instagram.com/ama_sick/", icon: IconBrandInstagram, label: "Instagram" },
     { href: "https://www.linkedin.com/in/sde-amankaushik/", icon: IconBrandLinkedin, label: "LinkedIn" },
     { href: "mailto:amankaushik0159@gmail.com", icon: IconMail, label: "Email" },
-    { href: "https://drive.google.com/file/d/1hvJqxcbQTox-XeTzN1aPWn-vXeTIqzCe/view?usp=sharing", icon: IconFileCv, label: "Resume" },
-    { href: "https://www.instagram.com/ama_sick/", icon: IconBrandInstagram, label: "Instagram" },
-    { href: "https://x.com/ama_sick", icon: IconBrandX, label: "Twitter" },
-    { href: "https://topmate.io/aman_kaushik", icon: IconUser, label: "Topmate" }
   ];
 
   return (
@@ -71,7 +69,7 @@ const Contact = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6 justify-items-center mb-12"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-items-center mb-12"
         >
           {contactLinks.map((link, index) => (
             <ContactLink 

@@ -86,7 +86,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
 
         {/* Content */}
-        <BlogContent content={post.content} />
+        <BlogContent content={post.content} format={post.format} />
       </article>
     </div>
   );

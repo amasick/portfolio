@@ -4,11 +4,11 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { name: "GitHub", href: "https://github.com/amasick" },
-    { name: "LinkedIn", href: "https://www.linkedin.com/in/sde-amankaushik/" },
+    { name: "Medium", href: "https://medium.com/@ama_sick" },
     { name: "X / Twitter", href: "https://x.com/ama_sick" },
     { name: "Instagram", href: "https://www.instagram.com/ama_sick/" },
-    { name: "Topmate", href: "https://topmate.io/aman_kaushik" },
+    { name: "LinkedIn", href: "https://www.linkedin.com/in/sde-amankaushik/" },
+    { name: "Email", href: "mailto:amankaushik0159@gmail.com" },
   ];
 
   const quickLinks = [
