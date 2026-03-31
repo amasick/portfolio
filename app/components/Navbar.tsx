@@ -56,10 +56,8 @@ import {
   IconUser, 
   IconDeviceLaptop, 
   IconCrown, 
-  IconStack2, 
-  IconCode, 
-  IconChartBar, 
-  IconBrandLinkedin 
+  IconRocket, 
+  IconNotebook
 } from "@tabler/icons-react";
 
 const FloatingNavbar = () => {
@@ -75,6 +73,11 @@ const FloatingNavbar = () => {
       icon: <IconUser className="h-4 w-4 text-white hover:text-black" />,
     },
     {
+      name: "Ventures",
+      link: "#ventures",
+      icon: <IconRocket className="h-4 w-4 text-white hover:text-black" />,
+    },
+    {
       name: "Experience",
       link: "#experience",
       icon: <IconCrown className="h-4 w-4 text-white hover:text-black" />,
@@ -85,24 +88,9 @@ const FloatingNavbar = () => {
       icon: <IconDeviceLaptop className="h-4 w-4 text-white hover:text-black" />,
     },
     {
-      name: "Tech Stack",
-      link: "#tech",
-      icon: <IconStack2 className="h-4 w-4 text-white hover:text-black" />,
-    },
-    {
-      name: "Coding Platforms",
-      link: "#coding-platforms",
-      icon: <IconCode className="h-4 w-4 text-white hover:text-black" />,
-    },
-    {
-      name: "Skills",
-      link: "#skills",
-      icon: <IconChartBar className="h-4 w-4 text-white hover:text-black" />,
-    },
-    {
-      name: "LinkedIn Posts",
-      link: "#linkedin-posts",
-      icon: <IconBrandLinkedin className="h-4 w-4 text-white hover:text-black" />,
+      name: "Blogs",
+      link: "#blogs",
+      icon: <IconNotebook className="h-4 w-4 text-white hover:text-black" />,
     },
     {
       name: "Contact",
