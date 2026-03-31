@@ -52,7 +52,8 @@ const HomePage = () => {
             setCurrentSkillIndex((prev) => (prev + 1) % skills.length);
         }, 2500);
         return () => clearInterval(interval);
-    }, [skills.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div id="home" className="relative h-screen w-full bg-black overflow-hidden">
