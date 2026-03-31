@@ -28,9 +28,7 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     setIsSubmitting(true);
-    // The form will be handled by Getform.io, so we don't need to prevent default
-    // or handle the submission ourselves
-    setTimeout(() => setIsSubmitting(false), 1000); // Reset button after 1 second
+    setTimeout(() => setIsSubmitting(false), 1000);
   };
 
   const contactLinks = [
@@ -46,21 +44,32 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center relative overflow-hidden" id="contact">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black opacity-50" />
-      <div className="absolute inset-0 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center opacity-10" />
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 py-16">
         <motion.h2 
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-6xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600"
+          className="text-4xl md:text-6xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600"
         >
-          Get In Touch
+          Let&apos;s Connect
         </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-gray-400 text-center text-lg mb-12 max-w-xl mx-auto"
+        >
+          Whether you want to collaborate on a project, discuss AI, explore a business idea, or just say hello — I&apos;d love to hear from you.
+        </motion.p>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6 justify-items-center mb-12"
         >
@@ -79,9 +88,10 @@ const Contact = () => {
           method="POST"
           onSubmit={handleSubmit}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="max-w-lg mx-auto bg-white bg-opacity-10 p-6 rounded-lg shadow-lg"
+          className="max-w-lg mx-auto bg-white/5 border border-white/10 p-6 rounded-xl"
         >
           <div className="mb-4">
             <label htmlFor="from_name" className="block text-sm font-medium text-gray-300 mb-1">Name</label>
@@ -104,60 +114,25 @@ const Contact = () => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              required
-              className="w-full px-3 py-2 bg-black bg-opacity-50 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="profession" className="block text-sm font-medium text-gray-300 mb-1">Profession</label>
-            <select
-              id="profession"
-              name="profession"
-              required
-              className="w-full px-3 py-2 bg-black bg-opacity-50 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="">Select your profession</option>
-              <option value="student">Student</option>
-              <option value="looking_for_service">Looking for Service</option>
-              <option value="professional">Professional</option>
-              <option value="entrepreneur">Entrepreneur</option>
-              <option value="recruiter">Recruiter</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div className="mb-4">
             <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-1">Message</label>
             <textarea
               id="message"
               name="message"
               required
               rows="4"
-              className="w-full px-3 py-2 bg-black bg-opacity-50 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Tell me about your idea, ask a question, or just say hi..."
+              className="w-full px-3 py-2 bg-black bg-opacity-50 border border-gray-600 rounded-md text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
             ></textarea>
           </div>
           <input type="hidden" name="_gotcha" style={{ display: 'none !important' }} />
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2.5 px-4 rounded-full hover:from-purple-700 hover:to-indigo-700 transition-colors duration-300 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-black"
           >
             {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>
         </motion.form>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="text-center mt-12 text-gray-400"
-        >
-          Feel free to reach out for collaborations or just a friendly hello!
-        </motion.p>
       </div>
     </div>
   );

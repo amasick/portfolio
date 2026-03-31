@@ -1,4 +1,3 @@
-import Image from "next/image";
 import HomePage from "./pages/HomePage";
 import Experience from "./pages/Experience";
 import About from "./pages/About";
@@ -9,20 +8,24 @@ import Linkedin from "./pages/Linkedin";
 import CodingProfiles from "./pages/codingplatforms";
 import SkillsGraph from "./pages/skill-graph";
 import BlogsPreview from "./pages/BlogsPreview";
+import Entrepreneurship from "./pages/Entrepreneurship";
+import Footer from "./components/Footer";
 
 export default function Home() {
   return (
     <>
      <HomePage/>
      <About/>
+     <Entrepreneurship/>
      <Experience/>
      <Projects/>
      <Tech/>
-     <SkillsGraph/>
      <BlogsPreview/>
+     <SkillsGraph/>
      <Linkedin/>
      <CodingProfiles/>
      <Contact/>
+     <Footer/>
     </>
   );
 }

@@ -2,79 +2,106 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { TextGenerateEffect } from "../components/ui/text-generate-effect";
 import img from '../../public/Images/aman.jpg';
 
 const About = () => {
-  const words = `
-  I'm Aman Kaushik, an IIT Ropar graduate with a B.Tech in Electrical Engineering, specializing in Full Stack Development and AI/ML Engineering. With professional experience at HCLTech, Infinity Learn, and KOSH, I've developed cutting-edge solutions that drive significant business impact.
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  };
 
-  At HCLTech as a Senior Software Engineer, I architected an AI-driven Credit Memorandum generation pipeline using CrewAI, automating financial statement analysis and ratio computation for Commonwealth Bank of Australia. I orchestrated specialized AI agents to perform financial analyses, reducing manual effort by 5 FTEs and slashing turnaround time by 90%. I also built PipelinePulse, a multi-agent system using AWS Bedrock that delivered 3-4× faster migration throughput across 75,000+ ETL jobs.
-
-  At Infinity Learn, I created a lead-to-sale prediction model using ensemble techniques, reducing manual sales workload by 90%, and implemented custom dashboards providing actionable insights for the product team.
-
-  At KOSH, I enhanced medical note understanding using the LLaMA 3 70B model, reducing clinical coding time from hours to minutes and demonstrating a 90% reduction in workload.
-
-  My technical skills span C++, Python, Java, SQL, TensorFlow, PyTorch, LangChain, LLM Orchestration, FastAPI, Docker, and cloud platforms like AWS and Google Cloud. I'm proficient with AWS services including Sagemaker, Lambda, EC2, RDS, and S3.
-
-  I'm a Knight on LeetCode (top 2% globally), an Expert on CodeForces, and ranked in the top 0.1% of JEE Advanced test-takers (AIR-EWS 723).
-
-  Looking for a dynamic developer who can bring innovation and efficiency to your projects? Let's collaborate to turn your vision into reality.
-  `;
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+  };
 
   return (
     <div className="relative min-h-screen bg-black text-white flex flex-col justify-center items-center overflow-hidden" id="about">
       {/* Dynamic background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black opacity-50" />
-      <div className="absolute inset-0 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center opacity-10" />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 py-16">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 py-20">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-6xl mb-12 text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600"
+          className="text-4xl md:text-6xl mb-14 text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600"
         >
-          About Me
+          Who I Am
         </motion.h1>
-        <div className="flex flex-col md:flex-row items-center gap-x-12">
+
+        <div className="flex flex-col md:flex-row items-center gap-x-14">
+          {/* Image */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 md:mb-0"
+            className="mb-10 md:mb-0 flex-shrink-0"
           >
             <div className="relative">
               <Image 
                 src={img} 
                 alt="Aman Kaushik" 
                 className="rounded-[30px] border-purple-500 border-2 p-2 shadow-lg shadow-purple-500/50" 
-                width={400} 
-                height={300} 
+                width={380} 
+                height={380} 
               />
               <div className="absolute -bottom-4 -right-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-3 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
             </div>
           </motion.div>
+
+          {/* Text */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
             className="flex-1"
           >
-            <div className="bg-black bg-opacity-70 p-6 rounded-lg shadow-xl">
-              <TextGenerateEffect words={words} className="text-gray-300 leading-relaxed" />
-              <div className="mt-6 flex flex-wrap gap-2">
-                {["AWS", "ML/AI", "Python", "LLM", "React", "Java", "Multi-Agent Systems"].map((tag, index) => (
-                  <span key={index} className="px-3 py-1 bg-purple-900 bg-opacity-50 text-purple-200 rounded-full text-sm">
+            <div className="space-y-5">
+              <motion.p variants={itemVariants} className="text-gray-300 text-lg leading-relaxed">
+                I&apos;m an <span className="text-white font-semibold">AI Engineer</span> with 2+ years of experience building intelligent systems that actually make a difference. From architecting multi-agent AI pipelines that saved 5 full-time employees&apos; worth of work, to building an AI solutions agency — I live at the intersection of <span className="text-purple-400">engineering and entrepreneurship</span>.
+              </motion.p>
+
+              <motion.p variants={itemVariants} className="text-gray-300 text-lg leading-relaxed">
+                I graduated from <span className="text-white font-semibold">IIT Ropar</span>, have worked with companies like HCLTech, Infinity Learn, and Kosh.ai, and I&apos;m currently building <span className="text-purple-400 font-semibold">NexloreAI</span> — an AI solutions agency helping businesses harness the power of artificial intelligence.
+              </motion.p>
+
+              <motion.p variants={itemVariants} className="text-gray-300 text-lg leading-relaxed">
+                Beyond the screen, you&apos;ll find me on a <span className="text-white font-semibold">basketball court</span>, going for a run, or planning my next travel adventure. I also love <span className="text-purple-400">writing blogs</span> about AI, tech, and the lessons I learn along the way. I believe in sharing knowledge openly — the best ideas come from conversations, not gatekeeping.
+              </motion.p>
+
+              <motion.p variants={itemVariants} className="text-gray-400 text-base italic">
+                &quot;Build things that excite you, share what you learn, and never stop exploring.&quot;
+              </motion.p>
+
+              {/* Interest tags */}
+              <motion.div variants={itemVariants} className="flex flex-wrap gap-2 pt-2">
+                {[
+                  "🧠 AI / ML",
+                  "🚀 Entrepreneurship", 
+                  "✍️ Blogging",
+                  "🏀 Basketball",
+                  "🏃 Running",
+                  "✈️ Travel",
+                  "☁️ AWS",
+                  "🐍 Python"
+                ].map((tag, index) => (
+                  <span key={index} className="px-3 py-1.5 bg-white/5 border border-white/10 text-gray-300 rounded-full text-sm">
                     {tag}
                   </span>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
