@@ -4,7 +4,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { name: "Medium", href: "https://medium.com/@ama_sick" },
+    { name: "Medium", href: "https://medium.com/@amasick" },
     { name: "X / Twitter", href: "https://x.com/ama_sick" },
     { name: "Instagram", href: "https://www.instagram.com/ama_sick/" },
     { name: "LinkedIn", href: "https://www.linkedin.com/in/sde-amankaushik/" },
@@ -14,7 +14,6 @@ const Footer = () => {
   const quickLinks = [
     { name: "About", href: "#about" },
     { name: "Ventures", href: "#ventures" },
-    { name: "Projects", href: "#projects" },
     { name: "Blogs", href: "/blogs" },
     { name: "Contact", href: "#contact" },
   ];
