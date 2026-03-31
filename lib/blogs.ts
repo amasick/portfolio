@@ -56,7 +56,7 @@ export function getAllBlogPosts(): BlogPost[] {
         title: title || slug,
         date: "",
         excerpt,
-        tags: [] as string[],
+        tags: [],
         coverImage: "",
         content: fileContents,
         format: "html" as const,

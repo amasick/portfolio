@@ -19,10 +19,14 @@ export default function BlogContent({
         title="Blog post"
         sandbox="allow-same-origin allow-scripts"
         onLoad={(e) => {
-          const iframe = e.target as HTMLIFrameElement;
-          if (iframe.contentDocument) {
-            iframe.style.height =
-              iframe.contentDocument.documentElement.scrollHeight + "px";
+          try {
+            const iframe = e.target as HTMLIFrameElement;
+            if (iframe.contentDocument) {
+              iframe.style.height =
+                iframe.contentDocument.documentElement.scrollHeight + "px";
+            }
+          } catch {
+            // Cross-origin or security restriction — use default height
           }
         }}
       />
