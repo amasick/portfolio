@@ -54,7 +54,6 @@ import {
   IconHome, 
   IconMessage, 
   IconUser, 
-  IconDeviceLaptop, 
   IconCrown, 
   IconRocket, 
   IconNotebook
@@ -81,11 +80,6 @@ const FloatingNavbar = () => {
       name: "Experience",
       link: "#experience",
       icon: <IconCrown className="h-4 w-4 text-white hover:text-black" />,
-    },
-    {
-      name: "Projects",
-      link: "#projects",
-      icon: <IconDeviceLaptop className="h-4 w-4 text-white hover:text-black" />,
     },
     {
       name: "Blogs",

@@ -15,9 +15,13 @@ export interface BlogPost {
   format: "md" | "html";
 }
 
-function extractHtmlMeta(html: string): { title: string; excerpt: string } {
+function extractHtmlMeta(html: string): { title: string; excerpt: string; date: string } {
   const titleMatch = html.match(/<title>(.*?)<\/title>/i);
   const title = titleMatch ? titleMatch[1] : "";
+
+  // Try to extract date from meta tag
+  const dateMatch = html.match(/<meta\s+name=["']date["']\s+content=["']([^"']+)["']\s*\/?>/i);
+  const date = dateMatch ? dateMatch[1] : "";
 
   // Try to extract first paragraph text as excerpt
   const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -25,7 +29,7 @@ function extractHtmlMeta(html: string): { title: string; excerpt: string } {
     ? pMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 200)
     : "";
 
-  return { title, excerpt };
+  return { title, excerpt, date };
 }
 
 function isBlogFile(fileName: string): boolean {
@@ -50,11 +54,11 @@ export function getAllBlogPosts(): BlogPost[] {
     const isHtml = fileName.endsWith(".html");
 
     if (isHtml) {
-      const { title, excerpt } = extractHtmlMeta(fileContents);
+      const { title, excerpt, date } = extractHtmlMeta(fileContents);
       return {
         slug,
         title: title || slug,
-        date: "",
+        date,
         excerpt,
         tags: [],
         coverImage: "",
@@ -101,11 +105,11 @@ export function getBlogPostBySlug(slug: string): BlogPost | null {
 
   if (fs.existsSync(htmlPath)) {
     const fileContents = fs.readFileSync(htmlPath, "utf8");
-    const { title, excerpt } = extractHtmlMeta(fileContents);
+    const { title, excerpt, date } = extractHtmlMeta(fileContents);
     return {
       slug,
       title: title || slug,
-      date: "",
+      date,
       excerpt,
       tags: [],
       coverImage: "",

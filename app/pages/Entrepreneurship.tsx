@@ -19,6 +19,7 @@ const ventures = [
     link: "https://nexloreai.com",
     linkText: "Visit NexloreAI →",
     emoji: "🤖",
+    logo: "https://github.com/user-attachments/assets/be97726a-61eb-4281-bb5a-dff69038189a",
     gradient: "from-purple-600 to-indigo-600",
   },
   {
@@ -96,7 +97,11 @@ const Entrepreneurship = () => {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-4">
-                    <span className="text-4xl">{venture.emoji}</span>
+                    {venture.logo ? (
+                      <img src={venture.logo} alt={`${venture.title} logo`} className="w-12 h-12 rounded-lg object-contain" />
+                    ) : (
+                      <span className="text-4xl">{venture.emoji}</span>
+                    )}
                     <div>
                       <h3 className="text-2xl font-bold text-white">
                         {venture.title}

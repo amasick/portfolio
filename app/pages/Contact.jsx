@@ -32,7 +32,7 @@ const Contact = () => {
   };
 
   const contactLinks = [
-    { href: "https://medium.com/@ama_sick", icon: IconBrandMedium, label: "Medium" },
+    { href: "https://medium.com/@amasick", icon: IconBrandMedium, label: "Medium" },
     { href: "https://x.com/ama_sick", icon: IconBrandX, label: "Twitter" },
     { href: "https://www.instagram.com/ama_sick/", icon: IconBrandInstagram, label: "Instagram" },
     { href: "https://www.linkedin.com/in/sde-amankaushik/", icon: IconBrandLinkedin, label: "LinkedIn" },
