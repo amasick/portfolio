@@ -59,7 +59,8 @@ import {
   IconStack2, 
   IconCode, 
   IconChartBar, 
-  IconBrandLinkedin 
+  IconBrandLinkedin,
+  IconNotebook 
 } from "@tabler/icons-react";
 
 const FloatingNavbar = () => {
@@ -98,6 +99,11 @@ const FloatingNavbar = () => {
       name: "Skills",
       link: "#skills",
       icon: <IconChartBar className="h-4 w-4 text-white hover:text-black" />,
+    },
+    {
+      name: "Blogs",
+      link: "#blogs",
+      icon: <IconNotebook className="h-4 w-4 text-white hover:text-black" />,
     },
     {
       name: "LinkedIn Posts",

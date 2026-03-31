@@ -8,7 +8,8 @@ import Contact from "./pages/Contact";
 import Linkedin from "./pages/Linkedin";
 import CodingProfiles from "./pages/codingplatforms";
 import SkillsGraph from "./pages/skill-graph";
-Experience
+import BlogsPreview from "./pages/BlogsPreview";
+
 export default function Home() {
   return (
     <>
@@ -18,10 +19,10 @@ export default function Home() {
      <Projects/>
      <Tech/>
      <SkillsGraph/>
+     <BlogsPreview/>
      <Linkedin/>
      <CodingProfiles/>
      <Contact/>
-     
     </>
   );
 }
