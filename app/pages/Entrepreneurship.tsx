@@ -98,7 +98,7 @@ const Entrepreneurship = () => {
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-4">
                     {venture.logo ? (
-                      <img src={venture.logo} alt={venture.title} className="w-12 h-12 rounded-lg object-contain" />
+                      <img src={venture.logo} alt={`${venture.title} logo`} className="w-12 h-12 rounded-lg object-contain" />
                     ) : (
                       <span className="text-4xl">{venture.emoji}</span>
                     )}
