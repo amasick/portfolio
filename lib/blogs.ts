@@ -12,6 +12,28 @@ export interface BlogPost {
   tags: string[];
   coverImage: string;
   content: string;
+  format: "md" | "html";
+}
+
+function extractHtmlMeta(html: string): { title: string; excerpt: string } {
+  const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+  const title = titleMatch ? titleMatch[1] : "";
+
+  // Try to extract first paragraph text as excerpt
+  const pMatch = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+  const excerpt = pMatch
+    ? pMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 200)
+    : "";
+
+  return { title, excerpt };
+}
+
+function isBlogFile(fileName: string): boolean {
+  return fileName.endsWith(".md") || fileName.endsWith(".html");
+}
+
+function getSlug(fileName: string): string {
+  return fileName.replace(/\.(md|html)$/, "");
 }
 
 export function getAllBlogPosts(): BlogPost[] {
@@ -19,14 +41,29 @@ export function getAllBlogPosts(): BlogPost[] {
     return [];
   }
 
-  const fileNames = fs.readdirSync(blogsDirectory).filter((f) => f.endsWith(".md"));
+  const fileNames = fs.readdirSync(blogsDirectory).filter(isBlogFile);
 
   const posts = fileNames.map((fileName) => {
-    const slug = fileName.replace(/\.md$/, "");
+    const slug = getSlug(fileName);
     const fullPath = path.join(blogsDirectory, fileName);
     const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data, content } = matter(fileContents);
+    const isHtml = fileName.endsWith(".html");
 
+    if (isHtml) {
+      const { title, excerpt } = extractHtmlMeta(fileContents);
+      return {
+        slug,
+        title: title || slug,
+        date: "",
+        excerpt,
+        tags: [] as string[],
+        coverImage: "",
+        content: fileContents,
+        format: "html" as const,
+      };
+    }
+
+    const { data, content } = matter(fileContents);
     return {
       slug,
       title: data.title || slug,
@@ -35,6 +72,7 @@ export function getAllBlogPosts(): BlogPost[] {
       tags: data.tags || [],
       coverImage: data.coverImage || "",
       content,
+      format: "md" as const,
     };
   });
 
@@ -42,24 +80,41 @@ export function getAllBlogPosts(): BlogPost[] {
 }
 
 export function getBlogPostBySlug(slug: string): BlogPost | null {
-  const fullPath = path.join(blogsDirectory, `${slug}.md`);
+  // Try .md first, then .html
+  const mdPath = path.join(blogsDirectory, `${slug}.md`);
+  const htmlPath = path.join(blogsDirectory, `${slug}.html`);
 
-  if (!fs.existsSync(fullPath)) {
-    return null;
+  if (fs.existsSync(mdPath)) {
+    const fileContents = fs.readFileSync(mdPath, "utf8");
+    const { data, content } = matter(fileContents);
+    return {
+      slug,
+      title: data.title || slug,
+      date: data.date || "",
+      excerpt: data.excerpt || "",
+      tags: data.tags || [],
+      coverImage: data.coverImage || "",
+      content,
+      format: "md",
+    };
   }
 
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
+  if (fs.existsSync(htmlPath)) {
+    const fileContents = fs.readFileSync(htmlPath, "utf8");
+    const { title, excerpt } = extractHtmlMeta(fileContents);
+    return {
+      slug,
+      title: title || slug,
+      date: "",
+      excerpt,
+      tags: [],
+      coverImage: "",
+      content: fileContents,
+      format: "html",
+    };
+  }
 
-  return {
-    slug,
-    title: data.title || slug,
-    date: data.date || "",
-    excerpt: data.excerpt || "",
-    tags: data.tags || [],
-    coverImage: data.coverImage || "",
-    content,
-  };
+  return null;
 }
 
 export function getAllBlogSlugs(): string[] {
@@ -69,6 +124,6 @@ export function getAllBlogSlugs(): string[] {
 
   return fs
     .readdirSync(blogsDirectory)
-    .filter((f) => f.endsWith(".md"))
-    .map((f) => f.replace(/\.md$/, ""));
+    .filter(isBlogFile)
+    .map(getSlug);
 }

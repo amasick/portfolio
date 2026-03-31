@@ -3,7 +3,32 @@
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function BlogContent({ content }: { content: string }) {
+export default function BlogContent({
+  content,
+  format = "md",
+}: {
+  content: string;
+  format?: "md" | "html";
+}) {
+  if (format === "html") {
+    return (
+      <iframe
+        srcDoc={content}
+        className="w-full border-0 rounded-lg"
+        style={{ minHeight: "100vh" }}
+        title="Blog post"
+        sandbox="allow-same-origin allow-scripts"
+        onLoad={(e) => {
+          const iframe = e.target as HTMLIFrameElement;
+          if (iframe.contentDocument) {
+            iframe.style.height =
+              iframe.contentDocument.documentElement.scrollHeight + "px";
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="prose prose-invert prose-purple max-w-none">
       <Markdown
