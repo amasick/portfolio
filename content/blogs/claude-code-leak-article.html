@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Claude Code Leak Wasn't a Hack – It Was a Classic DevOps Mistake</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --soft-ink: #3d3d3d;
+    --muted: #6b6b6b;
+    --rule: #e8e4df;
+    --accent: #c0392b;
+    --accent-warm: #e67e22;
+    --bg: #faf8f5;
+    --card: #fff;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --highlight: #fff3cd;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+    padding: 80px 24px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #f39c12;
+    border: 1px solid rgba(243,156,18,0.4);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    line-height: 1.15;
+    max-width: 780px;
+    margin: 0 auto 24px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .hero h1 em {
+    color: #f39c12;
+    font-style: italic;
+  }
+  .hero-sub {
+    font-family: 'Source Serif 4', serif;
+    font-size: 17px;
+    color: rgba(255,255,255,0.7);
+    max-width: 560px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ── ARTICLE BODY ── */
+  .article {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  .drop-cap::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.8em;
+    font-weight: 900;
+    float: left;
+    line-height: 0.78;
+    margin: 8px 12px -4px 0;
+    color: var(--accent);
+  }
+
+  p { margin-bottom: 1.4em; color: var(--soft-ink); }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 56px 0 20px;
+    line-height: 1.25;
+  }
+  h2::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 3px;
+    background: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 36px 0 12px;
+    font-style: italic;
+  }
+
+  .callout {
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    margin: 36px 0;
+    background: #fff8f7;
+    font-size: 17px;
+    color: var(--soft-ink);
+    font-style: italic;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout strong { font-style: normal; color: var(--accent); }
+
+  .callout-blue {
+    border-left-color: #2980b9;
+    background: #f0f7ff;
+  }
+  .callout-blue strong { color: #2980b9; }
+
+  .callout-green {
+    border-left-color: #27ae60;
+    background: #f0fff5;
+  }
+
+  .pullquote {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--ink);
+    text-align: center;
+    margin: 48px -40px;
+    padding: 32px 40px;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    line-height: 1.35;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 24px 28px;
+    border-radius: 8px;
+    margin: 28px 0;
+    overflow-x: auto;
+    line-height: 1.7;
+    position: relative;
+  }
+  .code-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 10px; right: 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+  .code-comment { color: #6c7086; }
+  .code-string  { color: #a6e3a1; }
+  .code-key     { color: #89b4fa; }
+  .code-bad     { color: #f38ba8; }
+
+  /* ── DIAGRAM WRAPPERS ── */
+  .diagram-wrap {
+    margin: 44px -20px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 10px 20px 14px;
+    border-top: 1px solid var(--rule);
+    background: #fafafa;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    padding: 32px 36px 24px;
+    position: relative;
+  }
+  .tl-line {
+    position: absolute;
+    left: 52px; top: 40px; bottom: 40px;
+    width: 2px;
+    background: linear-gradient(to bottom, #e74c3c, #f39c12, #27ae60);
+    border-radius: 2px;
+  }
+  .tl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .tl-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 3px solid #e74c3c;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    margin-top: 3px;
+  }
+  .tl-dot.warn { border-color: #f39c12; }
+  .tl-dot.ok { border-color: #27ae60; }
+  .tl-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+  .tl-num.warn { background: #f39c12; }
+  .tl-num.bad { background: #8e44ad; }
+  .tl-text { font-size: 15px; color: var(--soft-ink); }
+  .tl-text strong { color: var(--ink); display: block; font-size: 15px; margin-bottom: 2px; }
+
+  /* ── COMPARISON GRID ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 36px 0;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .compare-col { padding: 28px; }
+  .compare-col:first-child {
+    background: #fff8f7;
+    border-right: 1px solid var(--rule);
+  }
+  .compare-col:last-child { background: #f0fff5; }
+  .compare-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-head.red { color: var(--accent); }
+  .compare-head.green { color: #27ae60; }
+  .compare-item {
+    font-size: 14px;
+    color: var(--soft-ink);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-item:last-child { border-bottom: none; }
+
+  /* ── STAT CARDS ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 36px 0;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 18px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── BUILD PIPELINE DIAGRAM ── */
+  .pipeline-wrap { padding: 32px; }
+
+  /* ── LESSON CARDS ── */
+  .lessons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 28px 0;
+  }
+  .lesson-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 18px 20px;
+    transition: box-shadow 0.2s;
+  }
+  .lesson-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .lesson-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--rule);
+    line-height: 1;
+    min-width: 36px;
+  }
+  .lesson-text strong { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .lesson-text { font-size: 14px; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  .article-footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    border-top: 2px solid var(--ink);
+    padding-top: 32px;
+  }
+  .footer-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 48px 0;
+  }
+
+  @media (max-width: 640px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-col:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+    .pullquote { margin: 36px 0; }
+  }
+
+  /* ── WATERMARKS ── */
+  .watermark {
+    position: fixed;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(192, 57, 43, 0.13);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    pointer-events: none;
+    user-select: none;
+    z-index: 9999;
+    white-space: nowrap;
+    transform-origin: center center;
+  }
+  .wm-top-left    { top: 18px;  left: 32px;   transform: rotate(-4deg);  font-size: 11px; }
+  .wm-top-center  { top: 14px;  left: 50%;    transform: translateX(-50%) rotate(1deg); font-size: 13px; color: rgba(44,62,80,0.1); }
+  .wm-top-right   { top: 22px;  right: 28px;  transform: rotate(3deg);   font-size: 10px; color: rgba(192,57,43,0.09); }
+  .wm-mid-left    { top: 46%;   left: 18px;   transform: rotate(-90deg); font-size: 11px; color: rgba(44,62,80,0.08); }
+  .wm-mid-center  { top: 50%;   left: 50%;    transform: translate(-50%,-50%) rotate(-8deg); font-size: 22px; color: rgba(192,57,43,0.06); letter-spacing: 6px; }
+  .wm-mid-right   { top: 53%;   right: 12px;  transform: rotate(90deg);  font-size: 10px; color: rgba(44,62,80,0.07); }
+  .wm-bot-left    { bottom: 20px; left: 24px; transform: rotate(5deg);   font-size: 11px; color: rgba(192,57,43,0.1); }
+  .wm-bot-center  { bottom: 16px; left: 50%;  transform: translateX(-50%) rotate(-2deg); font-size: 12px; color: rgba(44,62,80,0.11); }
+  .wm-bot-right   { bottom: 22px; right: 30px; transform: rotate(-6deg); font-size: 10px; color: rgba(192,57,43,0.09); }
+  .wm-scatter-1   { top: 28%;   left: 8%;    transform: rotate(-15deg); font-size: 10px; color: rgba(44,62,80,0.06); }
+  .wm-scatter-2   { top: 72%;   left: 80%;   transform: rotate(12deg);  font-size: 10px; color: rgba(192,57,43,0.07); }
+  .wm-scatter-3   { top: 38%;   right: 5%;   transform: rotate(90deg);  font-size: 9px;  color: rgba(44,62,80,0.06); }
+
+  /* ── SARCASM FOOTER ── */
+  .sarcasm-bar {
+    background: linear-gradient(90deg, #0f0c29, #302b63, #24243e);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    padding: 14px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 60px;
+  }
+  .sarcasm-bar::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px);
+  }
+  .sarcasm-bar em { color: #f39c12; font-style: normal; }
+  .sarcasm-bar .wink { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<!-- WATERMARKS -->
+<div class="watermark wm-top-left">Aman Kaushik</div>
+<div class="watermark wm-top-center">Aman Kaushik</div>
+<div class="watermark wm-top-right">Aman Kaushik</div>
+<div class="watermark wm-mid-left">Aman Kaushik</div>
+<div class="watermark wm-mid-center">Aman Kaushik</div>
+<div class="watermark wm-mid-right">Aman Kaushik</div>
+<div class="watermark wm-bot-left">Aman Kaushik</div>
+<div class="watermark wm-bot-center">Aman Kaushik</div>
+<div class="watermark wm-bot-right">Aman Kaushik</div>
+<div class="watermark wm-scatter-1">Aman Kaushik</div>
+<div class="watermark wm-scatter-2">Aman Kaushik</div>
+<div class="watermark wm-scatter-3">Aman Kaushik</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">DevOps Incident · March 31, 2026</div>
+  <h1>The Claude Code Leak <em>Wasn't</em> a Hack.<br>It Was a Classic DevOps Mistake.</h1>
+  <p class="hero-sub">How a forgotten 59.8 MB file unzipped 512,000 lines of Anthropic's most closely guarded client code — and what every developer should feel in their gut after reading this.</p>
+  <div class="hero-meta">
+    <span>⏱ 9 min read</span>
+    <span>·</span>
+    <span>📅 April 2026</span>
+    <span>·</span>
+    <span>🔍 Security · DevOps · AI</span>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<article class="article">
+
+  <p class="drop-cap">Imagine waking up on a Monday morning, coffee in hand, scrolling GitHub. And there it is: the inner workings of one of the most sophisticated AI coding agents ever built, laid completely bare. Not hacked. Not stolen. Just… <em>accidentally shipped.</em> The kind of mistake that makes your stomach drop because you know — deep down — you could have made it too.</p>
+
+  <p>That's exactly what happened on March 31, 2026, when Anthropic's Claude Code CLI had its soul accidentally mailed to the public internet. No breach. No sophisticated attack. No sinister nation-state actor. Just a <span class="mono">cli.js.map</span> file that wandered into an <span class="mono">npm publish</span> it was never supposed to join.</p>
+
+  <div class="callout">
+    <strong>The quiet horror of it:</strong> The build worked perfectly. The code was clean. The tests passed. The deployment succeeded. And somewhere in a CI pipeline, a debug artifact silently hitched a ride into production — and took 512,000 lines of TypeScript with it.
+  </div>
+
+  <p>Within hours, the internet had it. Within a day, it was mirrored, archived, and dissected on GitHub. Anthropic pulled the version. But as any developer who's ever accidentally pushed credentials to a public repo knows — <em>once it's out, it's out.</em></p>
+
+  <!-- STATS -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num">59.8<span style="font-size:16px">MB</span></div>
+      <div class="stat-label">Map File Size</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">512K</div>
+      <div class="stat-label">Lines Reconstructed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">~1,900</div>
+      <div class="stat-label">Files Exposed</div>
+    </div>
+  </div>
+
+  <h2>The Anatomy of an Accident</h2>
+
+  <p>To understand how something like this happens, you need to step into the shoes of a developer pushing a release. The sequence of events isn't dramatic. There's no villain. There's just… a config file that wasn't quite right.</p>
+
+  <!-- TIMELINE -->
+  <div class="diagram-wrap">
+    <div class="timeline">
+      <div class="tl-line"></div>
+      <div class="tl-item">
+        <div class="tl-num">1</div>
+        <div class="tl-text"><strong>npm publish v2.1.88</strong>Anthropic releases a new version of <code style="font-family:monospace;font-size:13px;background:#f4f4f4;padding:2px 6px;border-radius:3px">@anthropic-ai/claude-code</code> to the public registry. Standard release day.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-num warn">2</div>
+        <div class="tl-text"><strong>The hitchhiker joins the ride</strong>Bundled inside: <code style="font-family:monospace;font-size:13px;background:#f4f4f4;padding:2px 6px;border-radius:3px">cli.js.map</code> — a 59.8 MB source map that should never, ever see the light of a production package.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-num warn">3</div>
+        <div class="tl-text"><strong>Publicly downloadable</strong>Like any npm package asset, the file sat there on the registry — open, downloadable, waiting. No credentials needed.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-num bad">4</div>
+        <div class="tl-text"><strong>A researcher spots it immediately</strong>Someone ran a simple audit. They saw the file size. They knew what it meant. The clock started ticking.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-num bad">5</div>
+        <div class="tl-text"><strong>Reconstruction in minutes</strong>Standard tooling. No exploits needed. The original TypeScript source was rebuilt from the map, clean as a whistle.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-num bad">6</div>
+        <div class="tl-text"><strong>GitHub mirrors everywhere</strong>Forks. Archives. Mirrors. The internet made it permanent before Anthropic could respond.</div>
+      </div>
+      <div class="tl-item" style="margin-bottom:0">
+        <div class="tl-num ok" style="background:#27ae60">7</div>
+        <div class="tl-text"><strong>Anthropic pulls the version</strong>The damage, however, was already done. The version was yanked but the code lived on in dozens of mirrors.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">⏱ The full sequence unfolded in under a few hours</div>
+  </div>
+
+  <h2>Wait — What Even <em>Is</em> a Source Map?</h2>
+
+  <p>Here's where a lot of people's eyes glaze over. But stay with me, because this is the technical heart of why the leak was so complete, so clean, and so devastating. It's also proof that "debug files" are never just debug files.</p>
+
+  <p>When you build a modern JavaScript or TypeScript application for production, your beautiful, readable code gets transformed. It gets bundled into a single massive file. It gets minified — variable names become <span class="mono">a</span>, <span class="mono">b</span>, <span class="mono">x</span>. Whitespace vanishes. Logic tangles. What emerges looks like this:</p>
+
+  <div class="code-block" data-label="minified output">
+<span class="code-bad">function</span> <span class="code-key">a</span>(b,c){<span class="code-bad">return</span> b.run(c,{mode:<span class="code-string">"agent"</span>,fork:!!c.fork})}
+  </div>
+
+  <p>Unreadable. Intentionally so. This is your intellectual property in the form of a puzzle with no answer key.</p>
+
+  <p><em>Unless</em> you ship the answer key along with it.</p>
+
+  <!-- BUILD PIPELINE DIAGRAM -->
+  <div class="diagram-wrap">
+    <div class="pipeline-wrap">
+      <svg viewBox="0 0 660 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#999"/>
+          </marker>
+          <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#c0392b"/>
+          </marker>
+        </defs>
+
+        <!-- Source files -->
+        <rect x="20" y="90" width="110" height="100" rx="8" fill="#1e1e2e" stroke="#444" stroke-width="1.5"/>
+        <text x="75" y="112" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#6c7086" letter-spacing="1">SOURCE</text>
+        <text x="75" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#cdd6f4">agent.ts</text>
+        <text x="75" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#cdd6f4">tools.ts</text>
+        <text x="75" y="166" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#cdd6f4">prompt.ts</text>
+        <text x="75" y="184" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#585b70">+ 1,896 more</text>
+
+        <!-- Arrow 1 -->
+        <line x1="132" y1="140" x2="190" y2="140" stroke="#999" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Build box -->
+        <rect x="193" y="105" width="110" height="70" rx="8" fill="#2d2a55" stroke="#555" stroke-width="1.5"/>
+        <text x="248" y="132" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#89dceb" letter-spacing="1">BUILD</text>
+        <text x="248" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#cdd6f4">tsc + bundle</text>
+        <text x="248" y="165" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#585b70">minify + optimize</text>
+
+        <!-- Arrow 2 -->
+        <line x1="305" y1="140" x2="363" y2="140" stroke="#999" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Output files -->
+        <rect x="366" y="85" width="110" height="50" rx="8" fill="#1e2a1e" stroke="#2ecc71" stroke-width="1.5"/>
+        <text x="421" y="105" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#2ecc71" letter-spacing="1">SAFE ✓</text>
+        <text x="421" y="123" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#a6e3a1">cli.js</text>
+
+        <!-- Danger map file -->
+        <rect x="366" y="155" width="110" height="50" rx="8" fill="#2a1e1e" stroke="#e74c3c" stroke-width="2"/>
+        <text x="421" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#e74c3c" letter-spacing="1">⚠ DANGER</text>
+        <text x="421" y="193" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#f38ba8">cli.js.map</text>
+
+        <!-- Arrow from map to npm (the bad path) -->
+        <line x1="478" y1="180" x2="545" y2="180" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+
+        <!-- npm box -->
+        <rect x="548" y="155" width="92" height="50" rx="8" fill="#2a1a1a" stroke="#e74c3c" stroke-width="2"/>
+        <text x="594" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#f38ba8" letter-spacing="1">npm publish</text>
+        <text x="594" y="192" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#e74c3c">PUBLIC 💥</text>
+
+        <!-- should-not badge -->
+        <rect x="460" y="162" width="82" height="18" rx="3" fill="#c0392b"/>
+        <text x="501" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="white">SHOULD BE BLOCKED</text>
+
+        <!-- Safe arrow from cli.js to npm (greyed out - what should happen) -->
+        <line x1="478" y1="110" x2="545" y2="110" stroke="#2ecc71" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="548" y="88" width="92" height="44" rx="8" fill="#1e2a1e" stroke="#2ecc71" stroke-width="1.5"/>
+        <text x="594" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#2ecc71" letter-spacing="1">npm publish</text>
+        <text x="594" y="123" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#a6e3a1">SAFE ✓</text>
+
+        <!-- Title -->
+        <text x="330" y="36" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#333" font-style="italic">The Build Pipeline — Where It Went Wrong</text>
+        <text x="330" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#999">The .map file should never reach npm. A misconfigured .npmignore let it through.</text>
+      </svg>
+    </div>
+    <div class="diagram-caption">How a source map leaks your entire codebase in disguise</div>
+  </div>
+
+  <p>A <span class="mono">.map</span> file is the dictionary between your minified production output and your original source. It maps every character, every variable, every line back to where it came from — including the full original file names, the real variable names, and often the <em>entire original source code.</em> Ship a source map, and you've shipped your codebase. That's it. That's the whole story.</p>
+
+  <div class="callout callout-blue">
+    <strong>Mental model:</strong> Think of it like encrypting a letter, then taping the cipher key to the envelope. The encryption did its job. The delivery process undid all of it.
+  </div>
+
+  <h2>What Was Actually Inside</h2>
+
+  <p>Now here's where people who follow AI casually started losing their minds on X/Twitter — and where people who actually understand systems architecture stayed more measured.</p>
+
+  <p>The leaked code was substantial, real, and revealing. But it was also <em>not</em> what many assumed.</p>
+
+  <!-- COMPARE LEAKED VS NOT -->
+  <div class="compare-grid">
+    <div class="compare-col">
+      <div class="compare-head red">✗ What Leaked</div>
+      <div class="compare-item">🤖 Agent orchestration logic</div>
+      <div class="compare-item">🔧 Tool execution flows</div>
+      <div class="compare-item">💬 System prompts</div>
+      <div class="compare-item">🔒 Permission & approval systems</div>
+      <div class="compare-item">🖥️ Bash & filesystem tools</div>
+      <div class="compare-item">🧠 Memory & context strategies</div>
+      <div class="compare-item">📊 Telemetry (Datadog integration)</div>
+      <div class="compare-item">🚩 Feature flags (GrowthBook)</div>
+      <div class="compare-item">🔮 Unreleased features</div>
+      <div class="compare-item">🐾 Internal model codenames</div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-head green">✓ What Did NOT Leak</div>
+      <div class="compare-item">🧬 Model weights</div>
+      <div class="compare-item">📚 Training data</div>
+      <div class="compare-item">⚙️ Training pipelines</div>
+      <div class="compare-item">🔬 Core inference engine</div>
+      <div class="compare-item">🔑 User credentials</div>
+      <div class="compare-item">🗂️ User conversation data</div>
+      <div class="compare-item">🏗️ Infrastructure configs</div>
+      <div class="compare-item">💰 Proprietary algorithms</div>
+    </div>
+  </div>
+
+  <p>The distinction matters enormously. The CLI — what leaked — is a client. It's the steering wheel. Beautiful engineering, yes. Revealing, absolutely. But it's not the engine. The model, the intelligence, the actual thing that makes Claude <em>Claude</em> — that lives on secure servers, locked behind APIs, inaccessible to anyone without credentials.</p>
+
+  <div class="pullquote">
+    "The steering wheel fell off the car. Embarrassing? Deeply. Did the car stop running? Not even slightly."
+  </div>
+
+  <h2>The Part That Should Haunt You: This Happened Before</h2>
+
+  <p>If there's one detail in this story that transforms it from "interesting incident" to "organizational lesson," it's this: <strong>this is not the first time.</strong></p>
+
+  <p>In February 2025, version <span class="mono">v0.2.8</span> of Claude Code made the exact same mistake. Same type of file. Same mechanism. Same exposure. The issue was spotted, fixed, and presumably learned from.</p>
+
+  <p>Then came March 2026. Version <span class="mono">v2.1.88</span>. Same mistake. Bigger version. Faster spread. Wider audience.</p>
+
+  <div class="callout" style="border-left-color: #8e44ad; background: #f9f5ff;">
+    <strong style="color:#8e44ad">That's not bad luck.</strong> That's a process that wasn't hardened. It's the difference between fixing a bug and fixing the system that allowed the bug to exist.
+  </div>
+
+  <h3>Why Does This Keep Happening?</h3>
+  <p>Because the failure modes in JavaScript/TypeScript build pipelines are quiet, easy to miss, and surprisingly easy to reintroduce. Here are the typical culprits:</p>
+
+  <div class="code-block" data-label="tsconfig.json">
+<span class="code-comment">// 🔴 DANGER — sourceMap in production build</span>
+{
+  <span class="code-key">"compilerOptions"</span>: {
+    <span class="code-key">"sourceMap"</span>: <span class="code-bad">true</span>,  <span class="code-comment">← this one line</span>
+    <span class="code-key">"outDir"</span>: <span class="code-string">"./dist"</span>
+  }
+}
+
+<span class="code-comment">// ✅ SAFE — only in dev/test environments</span>
+{
+  <span class="code-key">"compilerOptions"</span>: {
+    <span class="code-key">"sourceMap"</span>: <span class="code-bad">false</span>,
+    <span class="code-key">"outDir"</span>: <span class="code-string">"./dist"</span>
+  }
+}
+  </div>
+
+  <div class="code-block" data-label=".npmignore">
+<span class="code-comment"># 🔴 Missing this line = disaster</span>
+<span class="code-bad">*.map</span>
+
+<span class="code-comment"># Your .npmignore should explicitly exclude:</span>
+<span class="code-string">*.map</span>
+<span class="code-string">*.d.ts.map</span>
+<span class="code-string">**/*.js.map</span>
+  </div>
+
+  <h2>Why the Internet Reacted So Fast</h2>
+
+  <p>Part of what made this incident so remarkable was the speed of the community response. Within hours, the code was mirrored on GitHub, analyzed in Twitter threads, and broken down in developer forums. This wasn't morbid curiosity — this was genuine architectural hunger.</p>
+
+  <p>Most AI systems are black boxes with a chat window. You send a message in; a message comes out. What happens in between is mystery, marketing, and magic. The Claude Code leak cracked that box open and showed something genuinely rare: <em>how a production-grade AI agent is actually built.</em></p>
+
+  <div class="callout callout-green">
+    <strong>What developers actually gained:</strong> Real-world agent design patterns. Prompt engineering strategies from a top lab. Tool orchestration frameworks. Multi-agent execution models. Not theoretical — battle-tested, production code from Anthropic's best engineers. That's a curriculum you can't buy.
+  </div>
+
+  <h2>Patents, Trade Secrets & Why Nothing "Critical" Leaked</h2>
+
+  <p>There's a deeper principle at play here that most coverage missed. AI companies don't protect their core advantage with patents — they protect it with trade secrecy. And there's a profound strategic reason for that.</p>
+
+  <p>Patents require disclosure. You publish them. They expire. They can be designed around. A patent on your agent architecture is a blueprint your competitors can read.</p>
+
+  <p>Trade secrets require only silence. They last indefinitely. And when your competitive advantage is baked into billions of parameters trained over months on proprietary data — silence is the only real protection.</p>
+
+  <p>Anthropic's philosophy here is coherent: <em>patent the edges, hide the core.</em> The agent logic that leaked? Valuable, instructive, embarrassing to lose — but ultimately reproducible by any competent team. The model intelligence? That stays behind closed API doors, and no source map will ever reach it.</p>
+
+  <!-- ARCHITECTURE DIAGRAM -->
+  <div class="diagram-wrap">
+    <div style="padding:32px">
+      <svg viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+          </marker>
+        </defs>
+
+        <!-- User box -->
+        <rect x="20" y="90" width="110" height="60" rx="8" fill="#f0f7ff" stroke="#2980b9" stroke-width="1.5"/>
+        <text x="75" y="117" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#2980b9">Developer</text>
+        <text x="75" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#7fb3d3">in terminal</text>
+
+        <!-- CLI box (LEAKED) -->
+        <rect x="192" y="80" width="130" height="80" rx="8" fill="#fff3f3" stroke="#e74c3c" stroke-width="2"/>
+        <text x="257" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#e74c3c" letter-spacing="1">CLI (LEAKED)</text>
+        <text x="257" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#555">Claude Code</text>
+        <text x="257" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#999">agent / tools / prompts</text>
+
+        <!-- API boundary -->
+        <line x1="360" y1="20" x2="360" y2="220" stroke="#ddd" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="362" y="36" font-family="JetBrains Mono,monospace" font-size="9" fill="#bbb" letter-spacing="1">API BOUNDARY</text>
+
+        <!-- Anthropic Server -->
+        <rect x="390" y="60" width="230" height="120" rx="10" fill="#1e1e2e" stroke="#555" stroke-width="1.5"/>
+        <text x="505" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#6c7086" letter-spacing="1">ANTHROPIC SERVERS</text>
+        <rect x="408" y="95" width="85" height="40" rx="6" fill="#2a2a4a" stroke="#89b4fa" stroke-width="1"/>
+        <text x="450" y="112" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#89b4fa">Model</text>
+        <text x="450" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#585b70">Weights</text>
+        <rect x="508" y="95" width="95" height="40" rx="6" fill="#2a2a4a" stroke="#a6e3a1" stroke-width="1"/>
+        <text x="555" y="112" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#a6e3a1">Training</text>
+        <text x="555" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#585b70">Data + Pipeline</text>
+        <text x="505" y="162" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#f38ba8">🔒 NOT accessible via CLI</text>
+
+        <!-- Arrows -->
+        <line x1="132" y1="120" x2="190" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="324" y1="120" x2="388" y2="120" stroke="#555" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <!-- labels on arrows -->
+        <text x="161" y="113" font-family="JetBrains Mono,monospace" font-size="8" fill="#999">types prompt</text>
+        <text x="330" y="113" font-family="JetBrains Mono,monospace" font-size="8" fill="#999">API req</text>
+      </svg>
+    </div>
+    <div class="diagram-caption">The CLI is just a client. The crown jewels live behind the API — untouched by any source map.</div>
+  </div>
+
+  <h2>Five Lessons That Should Sting</h2>
+
+  <p>Every developer reading this should feel a small knot in their stomach. Because the lesson here isn't "Anthropic messed up." The lesson is that these mistakes are embarrassingly easy to make — and embarrassingly easy to prevent.</p>
+
+  <div class="lessons">
+    <div class="lesson-card">
+      <div class="lesson-num">01</div>
+      <div class="lesson-text">
+        <strong>Your build pipeline is part of your security model.</strong>
+        It doesn't matter how secure your servers are if your release process leaks the map to your castle.
+      </div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-num">02</div>
+      <div class="lesson-text">
+        <strong>Debug artifacts are not harmless.</strong>
+        That <span class="mono" style="font-size:12px">.map</span> file isn't an innocent log. It's your entire codebase in a trench coat.
+      </div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-num">03</div>
+      <div class="lesson-text">
+        <strong>npm is a public distribution channel. Treat it like production.</strong>
+        Whatever you publish is visible to every developer on earth. Instantly. Permanently.
+      </div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-num">04</div>
+      <div class="lesson-text">
+        <strong>Assume anything published is permanent.</strong>
+        Pulling a version doesn't remove it. The internet is faster than your incident response.
+      </div>
+    </div>
+    <div class="lesson-card">
+      <div class="lesson-num">05</div>
+      <div class="lesson-text">
+        <strong>Post-incident fixes that don't harden the process don't count.</strong>
+        The only lesson that matters is: <em>why didn't our pipeline catch this?</em>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>The Real Tragedy</h2>
+
+  <p>Let's be honest about what this incident actually is. Not catastrophic. Not existential. Not the moment Anthropic lost its edge. The core technology — the models, the training, the inference — is fine. Safe. Untouched.</p>
+
+  <p>But it's also not trivial. Internal prompts were exposed. Architecture decisions that took months of engineering became open-source overnight. Feature flags hinted at unreleased products. Model codenames — <em>Capybara, Fennec</em> — became public knowledge. And perhaps most painfully: this is the second time. The same mistake. A different version number. The same preventable outcome.</p>
+
+  <p>In a field where trust is currency, perception is product, and every stumble is amplified by a thousand AI-watchers — that matters.</p>
+
+  <div class="callout" style="border-left-color: var(--accent-warm); background: #fffbf0;">
+    <strong style="color: var(--accent-warm);">The uncomfortable truth:</strong> The best engineers in the world, building the most watched AI system in history, shipped a production package with a debug artifact included. It's not a sign of incompetence. It's a sign that without the right guardrails, even the best teams make the most mundane mistakes. Build the guardrails.
+  </div>
+
+  <h2>What Developers Actually Learned</h2>
+
+  <p>There's an ironic epilogue here. While the incident was embarrassing for Anthropic, it was genuinely valuable for the broader developer community. Those 512,000 lines of TypeScript weren't just proprietary code — they were a masterclass.</p>
+
+  <p>Real agent orchestration, not blog-post theory. Production-grade tool management. Thoughtful permission systems. How a team that thinks deeply about AI safety actually structures safeguards in code. The developer ecosystem got an education that no conference talk or research paper could have delivered as efficiently.</p>
+
+  <p>The irony being: Anthropic was trying to teach the world how to build better AI. They just accidentally included a very unplanned lecture in the curriculum.</p>
+
+</article>
+
+<!-- FOOTER -->
+<div class="article-footer">
+  <p class="footer-text">"This leak didn't reveal the future of AI. But it revealed something just as useful: how modern AI agents are actually built. And if you're paying attention — really paying attention — that's more than enough to get ahead."</p>
+  <p style="margin-top:20px; font-size:13px; color:var(--muted); font-family:'JetBrains Mono',monospace">Originally reported March 31, 2026 · Reconstructed and illustrated April 2026</p>
+</div>
+
+</body>
+</html>
